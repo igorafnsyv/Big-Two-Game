@@ -43,7 +43,7 @@ public class BigTwoTable implements CardGameTable {
 		for (int i = 0; i < 4; i++) {
 			avatars[i] = new ImageIcon("images/avatar" + i + ".png").getImage();
 			for (int j = 0; j < 13; j++) {
-				game.getPlayerList().get(i).addCard(this.game.getDeck().getCard( i * 13 + j));
+				//game.getPlayerList().get(i).addCard(this.game.getDeck().getCard( i * 13 + j));
 			}
 		}
 		updateCardsInfo();	//sets images accordingly
@@ -129,7 +129,6 @@ public class BigTwoTable implements CardGameTable {
 	 */
 	public void setActivePlayer(int activePlayer) {
 		
-		System.out.println(activePlayer);
 		
 		if (activePlayer < 0 || activePlayer >= game.getPlayerList().size()) {
 			
@@ -308,16 +307,20 @@ public class BigTwoTable implements CardGameTable {
 			int y = 50;
 			Image background = new ImageIcon("images/table.jpg").getImage();
 			g2.drawImage(background, 0, 0, this.getWidth(), this.getHeight(), this);
+			String playerName;
 			for (int i = 0; i < 4; i++) {
 				
 				if (i == activePlayer) {
 					g2.setColor(Color.CYAN);
+					playerName = "You";
 				}
 				else {
 					g2.setColor(Color.WHITE);
+					playerName = game.getPlayerList().get(i).getName();
 				}
 				
-				g2.drawString("Player " + i + "", x + 30, y);
+				//g2.drawString("Player " + i + "", x + 30, y);
+				g2.drawString(playerName, x + 30, y);
 				g2.drawImage(avatars[i], x, y, 107 , 93, this);
 				y += 120;
 				int numOfCards = game.getPlayerList().get(i).getNumOfCards();

@@ -1,4 +1,7 @@
 import java.util.*;
+
+import javax.swing.JOptionPane;
+
 import java.net.*;
 import java.io.*;
 
@@ -22,6 +25,7 @@ public class BigTwoClient implements CardGame, NetworkGame {
 	private int serverPort;
 	private Socket sock;
 	private ObjectOutputStream oos;
+	private ObjectInputStream ois;
 	
 	
 	
@@ -39,10 +43,11 @@ public class BigTwoClient implements CardGame, NetworkGame {
 			
 			playerList.add(new CardGamePlayer("Player " + i));
 		}
-		deck = new BigTwoDeck(); 
-		deck.shuffle();	
-		bigTwoTable = new BigTwoTable(this);
+		//deck = new BigTwoDeck();  //remove this?
+		//deck.shuffle();		// remove this?
+		//bigTwoTable = new BigTwoTable(this);
 		makeConnection();
+		bigTwoTable = new BigTwoTable(this);
 	}
 	
 	
@@ -271,7 +276,8 @@ public class BigTwoClient implements CardGame, NetworkGame {
 	
 	public static void main (String [] args) {
 		BigTwoClient game = new BigTwoClient();
-		game.start(game.getDeck());
+		
+		//game.start(game.getDeck());
 	}
 	/**
 	 * Method for returning a valid hand from the specified list of cards of the player
@@ -368,7 +374,7 @@ public class BigTwoClient implements CardGame, NetworkGame {
 	}
 	
 	//NetworkGame interface methods
-	public int getPlayerId() {
+	public int getPlayerID() {
 		return playerID;
 	}
 	
@@ -378,6 +384,10 @@ public class BigTwoClient implements CardGame, NetworkGame {
 	
 	public String getPlayerName() {
 		return playerName;
+	}
+	
+	public void setPlayerName(String playerName) {
+		this.playerName = playerName;
 	}
 	
 	public String getServerIP() {
@@ -390,5 +400,106 @@ public class BigTwoClient implements CardGame, NetworkGame {
 	
 	public int getServerPort() {
 		return serverPort;
+	}
+	
+	public void setServerPort(int serverPort) {
+		this.serverPort = serverPort;
+		
+	}
+	
+	public void makeConnection() {
+		playerName = null;
+		while (playerName == null || playerName.isEmpty()) {
+			playerName = JOptionPane.showInputDialog("Please, provide a user name");
+		}
+		serverIP = null;
+		while (serverIP == null || serverIP.isEmpty()) {
+			//ask for input until input is provided
+			serverIP = JOptionPane.showInputDialog(null, "Please, specify the IP address of the Server", "127.0.0.1");
+		}
+		String serverPortString = null;
+		while (serverPortString == null || serverPortString.isEmpty()) {
+			serverPortString = JOptionPane.showInputDialog(null,"Please, specify the Port number", 2396);
+			serverPort = Integer.parseInt(serverPortString);
+		}
+		
+		try {
+			sock = new Socket(this.getServerIP(), this.getServerPort());
+			oos = new ObjectOutputStream(sock.getOutputStream());
+			Thread readerThread = new Thread(new ServerHandler());	//implement it
+			readerThread.start();
+			sendMessage(new CardGameMessage(CardGameMessage.JOIN, -1, this.getPlayerName()));
+			sendMessage(new CardGameMessage(CardGameMessage.READY, -1, null));
+			
+		} catch (NoRouteToHostException ex) {
+			ex.printStackTrace();
+			System.out.println("No Server found");
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
+	}
+	public void parseMessage(GameMessage message) {
+		if (message.getType() == CardGameMessage.PLAYER_LIST) {
+			System.out.println("Received Player List");
+			this.playerID = message.getPlayerID();
+			String [] names = (String []) message.getData();
+			//update local names
+			for (int i = 0; i < 4; i++) {
+				if (names[i] != null) {
+					playerList.get(i).setName(names[i]);
+				}
+			}
+			
+	
+		}
+		
+		if (message.getType() == CardGameMessage.JOIN) {
+			System.out.println("Received join");
+			String name = (String) message.getData();
+			playerList.get(message.getPlayerID()).setName(name);
+			System.out.println(playerList.get(message.getPlayerID()).getName());
+		}
+		
+		if (message.getType() == CardGameMessage.FULL) {
+			bigTwoTable.printMsg("Server is full. You cannot join the game!");
+		}
+	}
+	
+	public void sendMessage(GameMessage message) {
+		try {
+			oos.writeObject(message);
+			System.out.println("Message sent");
+			//oos.close();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	public class ServerHandler implements Runnable {
+		
+		public ServerHandler() {
+			try {
+				ois = new ObjectInputStream(sock.getInputStream());
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+		public void run() {	//check for disconnection from the server?
+			CardGameMessage message;
+			try {
+				while ((message = (CardGameMessage)ois.readObject()) != null) {
+					//System.out.println(message.getPlayerID());
+					parseMessage(message);
+				}
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				System.out.println("Message class is not found");
+				e.printStackTrace();
+			}
+			
+		}
 	}
 }

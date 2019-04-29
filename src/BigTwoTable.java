@@ -309,14 +309,14 @@ public class BigTwoTable implements CardGameTable {
 			g2.drawImage(background, 0, 0, this.getWidth(), this.getHeight(), this);
 			String playerName;
 			for (int i = 0; i < 4; i++) {
-				
+				playerName = game.getPlayerList().get(i).getName();
 				if (i == activePlayer) {
 					g2.setColor(Color.CYAN);
-					playerName = "You";
+					
 				}
 				else {
 					g2.setColor(Color.WHITE);
-					playerName = game.getPlayerList().get(i).getName();
+
 				}
 				
 				//g2.drawString("Player " + i + "", x + 30, y);

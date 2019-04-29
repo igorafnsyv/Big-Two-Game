@@ -45,9 +45,9 @@ public class BigTwoClient implements CardGame, NetworkGame {
 		}
 		//deck = new BigTwoDeck();  //remove this?
 		//deck.shuffle();		// remove this?
-		//bigTwoTable = new BigTwoTable(this);
-		makeConnection();
 		bigTwoTable = new BigTwoTable(this);
+		makeConnection();
+		//bigTwoTable = new BigTwoTable(this);
 	}
 	
 	
@@ -369,7 +369,12 @@ public class BigTwoClient implements CardGame, NetworkGame {
 		for (int i = 0; i < 4; i++) {
 			if (playerList.get(i).getNumOfCards() == 0)
 				return true;
+			
+			//handle the case when player leaves the game
+			if (playerList.get(i).getName() == "")
+				return true;
 		}
+	
 		return false;
 	}
 	
@@ -463,6 +468,23 @@ public class BigTwoClient implements CardGame, NetworkGame {
 		
 		if (message.getType() == CardGameMessage.FULL) {
 			bigTwoTable.printMsg("Server is full. You cannot join the game!");
+		}
+		
+		if (message.getType() == CardGameMessage.QUIT) {
+			//actually no need to show this message
+			bigTwoTable.printMsg("Player " + playerList.get(message.getPlayerID()).getName() + " leaves the game\n" );
+			playerList.get(message.getPlayerID()).setName("");
+			if (!endOfGame()) {
+				bigTwoTable.repaint();
+			}
+			
+			sendMessage(new CardGameMessage(CardGameMessage.READY, -1, null));
+		}
+		
+		if (message.getType() == CardGameMessage.READY) {
+			String messageContent = playerList.get(message.getPlayerID()).getName() + " is ready\n";
+			System.out.println(messageContent);
+			bigTwoTable.printMsg(messageContent);
 		}
 	}
 	

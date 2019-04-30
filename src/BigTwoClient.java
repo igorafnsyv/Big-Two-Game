@@ -134,42 +134,7 @@ public class BigTwoClient implements CardGame, NetworkGame {
 	 * 				indexes of selected cards in form of integer array
 	 */
 	public void makeMove(int playerID, int[] cardIdx) {
-		//checkMove(playerID, cardIdx);
 		sendMessage(new CardGameMessage(CardGameMessage.MOVE, playerID, cardIdx));
-		/*if (legalHand) {
-			//reset legalHand to false so that next hand is verified
-			legalHand = false;
-			CardList selectedCards = playerList.get(playerID).play(cardIdx);
-			Hand selectedHand = composeHand(playerList.get(playerID), selectedCards);
-			handsOnTable.add(selectedHand);
-			bigTwoTable.printMsg("{" + selectedHand.getType() + "} ");
-			bigTwoTable.printMsg(selectedHand.toString() + "\n");
-			playerList.get(playerID).removeCards(selectedHand);
-			if (!endOfGame()) {
-				playerID++;
-				if (playerID == 4)
-					playerID = 0;
-				bigTwoTable.setActivePlayer(playerID);
-				bigTwoTable.updateCardsInfo();
-				bigTwoTable.repaint();
-				}
-			//end of game
-			else {
-				bigTwoTable.printMsg("Game Ends!\n");
-				bigTwoTable.printMsg("\n");
-				bigTwoTable.disable();
-				for (int i = 0; i < 4; i++) {
-					int numOfCards = playerList.get(i).getNumOfCards();
-					if (numOfCards == 0) {
-						bigTwoTable.printMsg(playerList.get(i).getName() + " wins the game\n");
-					}
-					else if (numOfCards > 1)
-						bigTwoTable.printMsg(playerList.get(i).getName() + " has " + numOfCards + " cards\n");
-					else
-						bigTwoTable.printMsg(playerList.get(i).getName() + " has 1 card\n");
-				}
-			}
-		} */
 	}
 	
 	@Override
@@ -534,9 +499,13 @@ public class BigTwoClient implements CardGame, NetworkGame {
 			
 		}
 		if (message.getType() == CardGameMessage.MOVE) {
-			
 			checkMove(message.getPlayerID(), (int []) message.getData());
-			//bigTwoTable.printMsg("checked move\n");
+			
+		}
+		
+		if (message.getType() == CardGameMessage.MSG) {
+			
+			bigTwoTable.printTextMsg((String) message.getData());
 			
 		}
 	}

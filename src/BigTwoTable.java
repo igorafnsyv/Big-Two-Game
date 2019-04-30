@@ -21,7 +21,10 @@ public class BigTwoTable implements CardGameTable {
 	private JMenu menu = new JMenu("Game");
 	private JButton playButton = new JButton("Play");
 	private JButton passButton = new JButton("Pass");
+	private JButton sendButton = new JButton("Send");
 	private JTextArea msgArea;
+	private JTextArea incomingMsg;
+	private JTextField outgoingMsg;
 	private Image[][] cardImages = new Image[4][13];
 	private Image cardBackImage = new ImageIcon("images/" + "b" + ".gif").getImage();
 	private Image[] avatars = new Image[4];
@@ -47,17 +50,34 @@ public class BigTwoTable implements CardGameTable {
 			}
 		}
 		frame = new JFrame(frameName);
-		msgArea = new JTextArea(44, 35);
+		msgArea = new JTextArea(21, 35); //rows, columns
+		
 		msgArea.setLineWrap(true);
-		JPanel textPanel = new JPanel();
+		
+		msgArea.setLineWrap(true);
+		msgArea.setEditable(false);
 		JScrollPane scroller = new JScrollPane(msgArea);
-		msgArea.setLineWrap(true);
 		scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-
+		incomingMsg = new JTextArea(21,35);
+		incomingMsg.setLineWrap(true);
+		incomingMsg.setEditable(false);
+		JScrollPane qScroller = new JScrollPane(incomingMsg);
+		qScroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		qScroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		JPanel textPanel = new JPanel();
+		BoxLayout boxlayout = new BoxLayout(textPanel, BoxLayout.Y_AXIS);
+		textPanel.setLayout(boxlayout);
+		outgoingMsg = new JTextField(20);
 		textPanel.add(scroller);
+		textPanel.add(qScroller);
+		textPanel.add(outgoingMsg);
+		
+
+		
 		playButton.addActionListener(new PlayButtonListener());
 		passButton.addActionListener(new PassButtonListener());
+		sendButton.addActionListener(new SendButtonListener());
 		bigTwoPanel = new BigTwoPanel();	
 		
 		//menu implementation
@@ -74,6 +94,7 @@ public class BigTwoTable implements CardGameTable {
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.add(playButton);//, BorderLayout.WEST);
 		buttonPanel.add(passButton);//, BorderLayout.WEST);
+		buttonPanel.add(sendButton);	//button to send messages
 		frame.add(buttonPanel, BorderLayout.SOUTH);
 		frame.add(bigTwoPanel, BorderLayout.CENTER);
 		frame.add(textPanel, BorderLayout.EAST);
@@ -239,6 +260,10 @@ public class BigTwoTable implements CardGameTable {
 		resetSelected();
 	}
 	
+	public void printTextMsg(String msg) {
+		incomingMsg.append(msg + "\n");
+	}
+	
 
 	class BigTwoPanel extends JPanel implements MouseListener {
 		
@@ -388,6 +413,16 @@ public class BigTwoTable implements CardGameTable {
 					printMsg("Select Cards or press 'Pass' button\n");
 			}
 			repaint();
+		}
+	}
+	
+	class SendButtonListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			if (!outgoingMsg.getText().isEmpty()) {
+				BigTwoClient client = (BigTwoClient) game;
+				client.sendMessage(new CardGameMessage(CardGameMessage.MSG, -1, outgoingMsg.getText()));
+				outgoingMsg.setText("");
+			}
 		}
 	}
 	

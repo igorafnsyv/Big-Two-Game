@@ -37,18 +37,16 @@ public class BigTwoTable implements CardGameTable {
 	public BigTwoTable(CardGame game) {
 		
 		this.game = game;
-		
-
 		selected = new boolean [52];
+		//avatars are added at the stage of component painting
+		//updateCardsInfo();	//sets images accordingly
+		String frameName = "";
 		for (int i = 0; i < 4; i++) {
-			avatars[i] = new ImageIcon("images/avatar" + i + ".png").getImage();
-			for (int j = 0; j < 13; j++) {
-				//game.getPlayerList().get(i).addCard(this.game.getDeck().getCard( i * 13 + j));
+			if (game.getPlayerList().get(i).getName() != "") {
+				frameName = game.getPlayerList().get(i).getName();
 			}
 		}
-		updateCardsInfo();	//sets images accordingly
-		
-		frame = new JFrame();
+		frame = new JFrame(frameName);
 		msgArea = new JTextArea(44, 35);
 		msgArea.setLineWrap(true);
 		JPanel textPanel = new JPanel();
@@ -91,7 +89,7 @@ public class BigTwoTable implements CardGameTable {
 	 * 
 	 */
 	public void updateCardsInfo() {
-		
+
 		for (int i = 0; i < 4; i++) {
 			
 			game.getPlayerList().get(i).getCardsInHand().sort();
@@ -301,8 +299,15 @@ public class BigTwoTable implements CardGameTable {
 
 		public void paintComponent(Graphics g) {
 			
+			
 			Graphics2D g2 = (Graphics2D) g;
 			super.paintComponent(g2);
+			
+			for (int i = 0; i < 4; i++) {
+				if (!game.getPlayerList().get(i).getName().isEmpty()) {
+					avatars[i] = new ImageIcon("images/avatar" + i + ".png").getImage();
+				}
+			} 
 			int x = 50;
 			int y = 50;
 			Image background = new ImageIcon("images/table.jpg").getImage();

@@ -495,6 +495,7 @@ public class BigTwoClient implements CardGame, NetworkGame {
 				for (int i = 0; i < 4; i++) {
 					playerList.get(i).removeAllCards();
 				}
+				handsOnTable = new ArrayList<Hand>();
 				bigTwoTable.updateCardsInfo();
 				bigTwoTable.repaint();
 			}
@@ -547,7 +548,7 @@ public class BigTwoClient implements CardGame, NetworkGame {
 				ex.printStackTrace();
 			}
 		}
-		public synchronized void  run() {	
+		public void  run() {	
 			CardGameMessage message;
 			try {
 				while ((message = (CardGameMessage)ois.readObject()) != null) {

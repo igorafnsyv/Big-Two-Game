@@ -15,9 +15,10 @@ public class BigTwoTable implements CardGameTable {
 	
 	private CardGame game;
 	private boolean [] selected;
-	private int activePlayer;
+	private int activePlayer = -1;
 	private JFrame frame;
 	private JPanel bigTwoPanel;
+	
 	private JMenu menu = new JMenu("Game");
 	private JButton playButton = new JButton("Play");
 	private JButton passButton = new JButton("Pass");
@@ -107,6 +108,7 @@ public class BigTwoTable implements CardGameTable {
 
 	}
 	
+	
 	/**
 	 * Additional method to update cardImages array after player's turn
 	 * 
@@ -160,7 +162,10 @@ public class BigTwoTable implements CardGameTable {
 			
 			this.activePlayer = activePlayer;
 		}
-		this.printMsg("Player " + activePlayer + "'s turn:\n");
+		this.printMsg(game.getPlayerList().get(activePlayer).getName() + "'s turn:\n");
+		if (playerID == activePlayer) {
+			
+		}
 	}
 	
 	/**
@@ -181,7 +186,7 @@ public class BigTwoTable implements CardGameTable {
 		int j = -1;
 		int counter = 0;
 		
-		for (int i = activePlayer * 13; i < activePlayer * 13 + game.getPlayerList().get(activePlayer).getNumOfCards(); i++) {
+		for (int i = playerID * 13; i < playerID * 13 + game.getPlayerList().get(playerID).getNumOfCards(); i++) {
 		
 			if (selected[i]) {
 				j++;
@@ -240,7 +245,9 @@ public class BigTwoTable implements CardGameTable {
 	 *  a method for enabling user interactions with the GUI
 	 */
 	public void enable() {
-		bigTwoPanel.setEnabled(true);
+		//bigTwoPanel.setEnabled(true);
+		playButton.setEnabled(true);
+		passButton.setEnabled(true);
 	}
 	
 	/**
@@ -248,7 +255,9 @@ public class BigTwoTable implements CardGameTable {
 	 * a method for disabling user interactions with the GUI
 	 */
 	public void disable() {
-		bigTwoPanel.setEnabled(false);
+		//bigTwoPanel.setEnabled(false);
+		playButton.setEnabled(false);
+		passButton.setEnabled(false);
 	}
 	
 	/**
@@ -293,9 +302,7 @@ public class BigTwoTable implements CardGameTable {
 				int mouseX = e.getX();
 				int mouseY = e.getY();
 				ArrayList<Integer> indexes_pressed = new ArrayList<Integer>();
-				
-				
-				for (int i = (activePlayer * 13); i < activePlayer * 13 + game.getPlayerList().get(activePlayer).getNumOfCards(); i++) {
+				for (int i = (playerID * 13); i < playerID * 13 + game.getPlayerList().get(playerID).getNumOfCards(); i++) {
 				
 					if (mouseX >= imagesX[i] && mouseX <= imagesX[i] + imageWidth) {
 						if (mouseY >= imagesY[i] && mouseY <= imagesY[i] + imageHeight) {
@@ -348,18 +355,31 @@ public class BigTwoTable implements CardGameTable {
 			Image background = new ImageIcon("images/table.jpg").getImage();
 			g2.drawImage(background, 0, 0, this.getWidth(), this.getHeight(), this);
 			String playerName;
+			
+			
+			
+			playButton.setEnabled(false);
+			passButton.setEnabled(false);
+			
+			if (playerID == activePlayer) {
+				playButton.setEnabled(true);
+				passButton.setEnabled(true);
+			}
+			
+			
 			for (int i = 0; i < 4; i++) {
 				playerName = game.getPlayerList().get(i).getName();
-				if (i == activePlayer) {
-					g2.setColor(Color.CYAN);
-					
+				if (i == playerID) {
+					g2.setColor(Color.YELLOW);
+					playerName = "You";
 				}
 				else {
 					g2.setColor(Color.WHITE);
-
+				}
+				if (i == activePlayer) {
+					g2.setColor(Color.CYAN);
 				}
 				
-				//g2.drawString("Player " + i + "", x + 30, y);
 				g2.drawString(playerName, x + 30, y);
 				g2.drawImage(avatars[i], x, y, 107 , 93, this);
 				y += 120;
@@ -417,7 +437,7 @@ public class BigTwoTable implements CardGameTable {
 	class PlayButtonListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			
-			if (bigTwoPanel.isEnabled()) {
+			if (playButton.isEnabled()) {
 				if (getSelected() != null)
 					game.makeMove(activePlayer, getSelected());
 				else
@@ -439,7 +459,7 @@ public class BigTwoTable implements CardGameTable {
 	
 	class PassButtonListener implements ActionListener{
 		public void actionPerformed(ActionEvent e) {
-			if (bigTwoPanel.isEnabled()) {
+			if (passButton.isEnabled()) {
 				game.makeMove(activePlayer, null);
 				resetCardsPosition();	//indicate this in the comments as a new feature
 				frame.repaint();

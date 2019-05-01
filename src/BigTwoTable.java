@@ -18,7 +18,6 @@ public class BigTwoTable implements CardGameTable {
 	private int activePlayer = -1;
 	private JFrame frame;
 	private JPanel bigTwoPanel;
-	
 	private JMenu menu = new JMenu("Game");
 	private JButton playButton = new JButton("Play");
 	private JButton passButton = new JButton("Pass");
@@ -72,6 +71,7 @@ public class BigTwoTable implements CardGameTable {
 		BoxLayout boxlayout = new BoxLayout(textPanel, BoxLayout.Y_AXIS);
 		textPanel.setLayout(boxlayout);
 		outgoingMsg = new JTextField(20);
+		outgoingMsg.addActionListener(new EnterListener());
 		textPanel.add(scroller);
 		textPanel.add(qScroller);
 		textPanel.add(outgoingMsg);
@@ -356,8 +356,6 @@ public class BigTwoTable implements CardGameTable {
 			g2.drawImage(background, 0, 0, this.getWidth(), this.getHeight(), this);
 			String playerName;
 			
-			
-			
 			playButton.setEnabled(false);
 			passButton.setEnabled(false);
 			
@@ -379,28 +377,31 @@ public class BigTwoTable implements CardGameTable {
 				if (i == activePlayer) {
 					g2.setColor(Color.CYAN);
 				}
-				
-				g2.drawString(playerName, x + 30, y);
-				g2.drawImage(avatars[i], x, y, 107 , 93, this);
-				y += 120;
-				int numOfCards = game.getPlayerList().get(i).getNumOfCards();
-				for (int j = 0; j < numOfCards ; j++) {
-
-					Image image = null;
-					//if (i == activePlayer) 
-					if (i == playerID)
-					{
-						image = cardImages[i][j];
-					} 
-					else 
-					{
-						image = cardBackImage;
+				// if the player exists
+				if (game.getPlayerList().get(i).getName() != "") {
+					g2.drawString(playerName, x + 30, y);
+					g2.drawImage(avatars[i], x, y, 107 , 93, this);
+					//y += 120;
+					int numOfCards = game.getPlayerList().get(i).getNumOfCards();
+					for (int j = 0; j < numOfCards ; j++) {
+	
+						Image image = null;
+						//if (i == activePlayer) 
+						if (i == playerID)
+						{
+							image = cardImages[i][j];
+						} 
+						else 
+						{
+							image = cardBackImage;
+						}
+	
+			            g2.drawImage(image, imagesX[(i * 13) + j], imagesY[(i * 13) + j], this);
 					}
-
-		            g2.drawImage(image, imagesX[(i * 13) + j], imagesY[(i * 13) + j], this);
-				}
-			}
-			
+				} //endif getName() != ""
+				// proper repositioning when players exit
+				y += 120;
+			} 
 			if (!game.getHandsOnTable().isEmpty()) {
 				Hand tableHand = game.getHandsOnTable().get(game.getHandsOnTable().size() - 1);
 				int xHand = 70;
@@ -433,7 +434,15 @@ public class BigTwoTable implements CardGameTable {
 		}
 	}
 
-
+	class EnterListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			if (!outgoingMsg.getText().isEmpty()) {
+				BigTwoClient client = (BigTwoClient) game;
+				client.sendMessage(new CardGameMessage(CardGameMessage.MSG, -1, outgoingMsg.getText()));
+				outgoingMsg.setText("");
+			}
+		}
+	}
 	class PlayButtonListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			

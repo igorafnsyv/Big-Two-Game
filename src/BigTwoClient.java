@@ -1,5 +1,6 @@
 import java.util.*;
 
+
 import javax.swing.JOptionPane;
 
 import java.net.*;
@@ -379,8 +380,8 @@ public class BigTwoClient implements CardGame, NetworkGame {
 				return true;
 			
 			//handle the case when player leaves the game
-			if (playerList.get(i).getName() == "")
-				return true;
+			//if (playerList.get(i).getName() == "")
+			//	return true;
 		}
 	
 		return false;
@@ -478,14 +479,22 @@ public class BigTwoClient implements CardGame, NetworkGame {
 		}
 		
 		if (message.getType() == CardGameMessage.FULL) {
-			bigTwoTable.printMsg("Server is full. You cannot join the game!");
+			if (bigTwoTable != null)
+				bigTwoTable.printMsg("Server is full. You cannot join the game!");
+
 		}
 		
 		if (message.getType() == CardGameMessage.QUIT) {
 			//actually no need to show this message
 			bigTwoTable.printMsg("Player " + playerList.get(message.getPlayerID()).getName() + " leaves the game\n" );
 			playerList.get(message.getPlayerID()).setName("");
+			//System.out.println("");
 			if (!endOfGame()) {
+				System.out.println("hello");
+				for (int i = 0; i < 4; i++) {
+					playerList.get(i).removeAllCards();
+				}
+				bigTwoTable.updateCardsInfo();
 				bigTwoTable.repaint();
 			}
 			
@@ -501,7 +510,7 @@ public class BigTwoClient implements CardGame, NetworkGame {
 		
 		if (message.getType() == CardGameMessage.START) {
 			BigTwoDeck deck = (BigTwoDeck) message.getData();
-			//deck.print();
+			deck.print();
 			this.start(deck);
 			bigTwoTable.repaint();
 			
@@ -544,13 +553,16 @@ public class BigTwoClient implements CardGame, NetworkGame {
 					//System.out.println(message.getPlayerID());
 					parseMessage(message);
 				}
+			} catch (SocketException es) {
+				bigTwoTable.printMsg("Server is full, You cannot join the game!");
+				es.printStackTrace();
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				System.out.println("Message class is not found");
 				e.printStackTrace();
-			}
+			} 
 			
 		}
 	}

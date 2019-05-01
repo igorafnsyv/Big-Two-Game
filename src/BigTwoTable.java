@@ -44,13 +44,20 @@ public class BigTwoTable implements CardGameTable {
 		selected = new boolean [52];
 		//avatars are added at the stage of component painting
 		//updateCardsInfo();	//sets images accordingly
-		String frameName = "";
-		for (int i = 0; i < 4; i++) {
+		//String frameName = "";
+		/*for (int i = 0; i < 4; i++) {
 			if (game.getPlayerList().get(i).getName() != "") {
 				frameName = game.getPlayerList().get(i).getName();
 				playerID = i;
 			}
-		}
+		}*/
+		NetworkGame gameConnected = (NetworkGame)this.game;
+		String frameName = gameConnected.getPlayerName();
+		//playerID = gameConnected.getPlayerID();
+		//System.out.println(playerID + " id");
+		
+		
+		
 		frame = new JFrame(frameName);
 		msgArea = new JTextArea(21, 35); //rows, columns
 		
@@ -85,11 +92,11 @@ public class BigTwoTable implements CardGameTable {
 		
 		//menu implementation
 		JMenuBar menuBar = new JMenuBar();
-		JMenuItem restartItem = new JMenuItem("Restart");
-		restartItem.addActionListener(new RestartMenuItemListener());
+		JMenuItem connectItem = new JMenuItem("Connect");
+		connectItem.addActionListener(new ConnectMenuItemListener());
 		JMenuItem quitItem = new JMenuItem("Quit");
 		quitItem.addActionListener(new QuitMenuItemListener());
-		menu.add(restartItem);
+		menu.add(connectItem);
 		menu.add(quitItem);
 		menuBar.add(menu);
 		
@@ -344,7 +351,8 @@ public class BigTwoTable implements CardGameTable {
 			
 			Graphics2D g2 = (Graphics2D) g;
 			super.paintComponent(g2);
-			
+			NetworkGame gameConnected = (NetworkGame) game;
+			playerID = gameConnected.getPlayerID();
 			for (int i = 0; i < 4; i++) {
 				if (!game.getPlayerList().get(i).getName().isEmpty()) {
 					avatars[i] = new ImageIcon("images/avatar" + i + ".png").getImage();
@@ -476,9 +484,10 @@ public class BigTwoTable implements CardGameTable {
 		}
 	}
 		
-	class RestartMenuItemListener implements ActionListener{
+	class ConnectMenuItemListener implements ActionListener{
 
 		public void actionPerformed(ActionEvent e) {
+			/*
 			BigTwoDeck newDeck = new BigTwoDeck();
 			newDeck.initialize();
 			newDeck.shuffle();
@@ -487,7 +496,9 @@ public class BigTwoTable implements CardGameTable {
 			game.start(newDeck);	
 			updateCardsInfo();
 			frame.repaint();
-
+			*/
+			NetworkGame gameToConnect = (NetworkGame)game;
+			gameToConnect.makeConnection();
 		}
 	}
 	

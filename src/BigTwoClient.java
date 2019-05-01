@@ -44,9 +44,16 @@ public class BigTwoClient implements CardGame, NetworkGame {
 			
 			playerList.add(new CardGamePlayer(""));
 		}
-		//bigTwoTable = new BigTwoTable(this);
+		playerName = "";
+		while (playerName.isEmpty()) {
+			playerName = JOptionPane.showInputDialog("Please, specify a desired user name.");
+		}
+		if (playerName == null)
+		{
+			System.exit(0);
+		}
+		bigTwoTable = new BigTwoTable(this);
 		makeConnection();
-		//bigTwoTable = new BigTwoTable(this);
 	}
 	
 	
@@ -422,22 +429,18 @@ public class BigTwoClient implements CardGame, NetworkGame {
 	}
 	
 	public void makeConnection() {
-		playerName = null;
-		while (playerName == null || playerName.isEmpty()) {
-			playerName = JOptionPane.showInputDialog("Please, provide a user name");
-		}
-		serverIP = null;
-		while (serverIP == null || serverIP.isEmpty()) {
+
+		serverIP = "";
+		while (serverIP.isEmpty()) {
 			//ask for input until input is provided
 			serverIP = JOptionPane.showInputDialog(null, "Please, specify the IP address of the Server", "127.0.0.1");
 		}
-		String serverPortString = null;
-		while (serverPortString == null || serverPortString.isEmpty()) {
+
+		String serverPortString = "";
+		while (serverPortString.isEmpty()) {
 			serverPortString = JOptionPane.showInputDialog(null,"Please, specify the Port number", 2396);
 			serverPort = Integer.parseInt(serverPortString);
 		}
-		
-		
 		
 		try {
 			sock = new Socket(this.getServerIP(), this.getServerPort());
@@ -445,7 +448,7 @@ public class BigTwoClient implements CardGame, NetworkGame {
 			Thread readerThread = new Thread(new ServerHandler());	//implement it
 			readerThread.start();
 			sendMessage(new CardGameMessage(CardGameMessage.JOIN, -1, this.getPlayerName()));
-			bigTwoTable = new BigTwoTable(this);
+			System.out.println(this.getPlayerName());
 			sendMessage(new CardGameMessage(CardGameMessage.READY, -1, null));
 			
 		} catch (NoRouteToHostException ex) {
@@ -510,9 +513,10 @@ public class BigTwoClient implements CardGame, NetworkGame {
 		
 		if (message.getType() == CardGameMessage.START) {
 			BigTwoDeck deck = (BigTwoDeck) message.getData();
-			deck.print();
+			bigTwoTable.printMsg("All players are ready. Game starts\n");
 			this.start(deck);
 			bigTwoTable.repaint();
+			
 			
 		}
 		if (message.getType() == CardGameMessage.MOVE) {

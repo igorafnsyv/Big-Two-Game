@@ -30,6 +30,7 @@ public class BigTwoTable implements CardGameTable {
 	private Image[] avatars = new Image[4];
 	private int[] imagesX = new int[52];
 	private int[] imagesY = new int[52];
+	private int playerID;
 		
 	
 	/**
@@ -47,6 +48,7 @@ public class BigTwoTable implements CardGameTable {
 		for (int i = 0; i < 4; i++) {
 			if (game.getPlayerList().get(i).getName() != "") {
 				frameName = game.getPlayerList().get(i).getName();
+				playerID = i;
 			}
 		}
 		frame = new JFrame(frameName);
@@ -110,6 +112,7 @@ public class BigTwoTable implements CardGameTable {
 	 * 
 	 */
 	public void updateCardsInfo() {
+		
 
 		for (int i = 0; i < 4; i++) {
 			
@@ -160,6 +163,13 @@ public class BigTwoTable implements CardGameTable {
 		this.printMsg("Player " + activePlayer + "'s turn:\n");
 	}
 	
+	/**
+	 * a method for returning frame
+	 * @return frame
+	 */
+	public JFrame getFrame() {
+		return frame;
+	}
 	/**
 	 * a method for getting an array of indices of the cards selected.
 	 */
@@ -357,7 +367,8 @@ public class BigTwoTable implements CardGameTable {
 				for (int j = 0; j < numOfCards ; j++) {
 
 					Image image = null;
-					if (i == activePlayer) 
+					//if (i == activePlayer) 
+					if (i == playerID)
 					{
 						image = cardImages[i][j];
 					} 

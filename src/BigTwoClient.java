@@ -248,19 +248,27 @@ public class BigTwoClient implements CardGame, NetworkGame {
 				}
 			//end of game
 			else {
-				bigTwoTable.printMsg("Game Ends!\n");
-				bigTwoTable.printMsg("\n");
+				String message = "Game Ends!\n\n";
+			
+				//bigTwoTable.printMsg("Game Ends!\n");
+				//bigTwoTable.printMsg("\n");
 				bigTwoTable.disable();
 				for (int i = 0; i < 4; i++) {
 					int numOfCards = playerList.get(i).getNumOfCards();
 					if (numOfCards == 0) {
-						bigTwoTable.printMsg(playerList.get(i).getName() + " wins the game\n");
+						//bigTwoTable.printMsg(playerList.get(i).getName() + " wins the game\n");
+						message += " " + playerList.get(i).getName() + " wins the game\n";
 					}
 					else if (numOfCards > 1)
-						bigTwoTable.printMsg(playerList.get(i).getName() + " has " + numOfCards + " cards\n");
+						//bigTwoTable.printMsg(playerList.get(i).getName() + " has " + numOfCards + " cards\n");
+						message += " " + playerList.get(i).getName() + " has " + numOfCards + " cards\n";
 					else
-						bigTwoTable.printMsg(playerList.get(i).getName() + " has 1 card\n");
+						//bigTwoTable.printMsg(playerList.get(i).getName() + " has 1 card\n");
+						message += " " + playerList.get(i).getName() + " has 1 cards\n";
 				}
+				JOptionPane.showMessageDialog(bigTwoTable.getFrame(), message);
+				sendMessage(new CardGameMessage(CardGameMessage.READY, -1, null));
+				
 			}
 		}
 

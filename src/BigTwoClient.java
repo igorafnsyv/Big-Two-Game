@@ -459,19 +459,17 @@ public class BigTwoClient implements CardGame, NetworkGame {
 		}
 		
 	}
-	public void parseMessage(GameMessage message) {
+	public synchronized void parseMessage(GameMessage message) {
 		if (message.getType() == CardGameMessage.PLAYER_LIST) {
 			System.out.println("Received Player List");
 			this.playerID = message.getPlayerID();
 			String [] names = (String []) message.getData();
-			//update local names
 			for (int i = 0; i < 4; i++) {
 				if (names[i] != null) {
 					playerList.get(i).setName(names[i]);
 				}
 			}
 			
-	
 		}
 		
 		if (message.getType() == CardGameMessage.JOIN) {
@@ -489,9 +487,9 @@ public class BigTwoClient implements CardGame, NetworkGame {
 		
 		if (message.getType() == CardGameMessage.QUIT) {
 			//actually no need to show this message
-			bigTwoTable.printMsg("Player " + playerList.get(message.getPlayerID()).getName() + " leaves the game\n" );
+			bigTwoTable.printMsg("Player " + playerList.get(message.getPlayerID()).getName() + " has left the game\n" );
 			playerList.get(message.getPlayerID()).setName("");
-			//System.out.println("");
+			
 			if (!endOfGame()) {
 				System.out.println("hello");
 				for (int i = 0; i < 4; i++) {
@@ -506,7 +504,6 @@ public class BigTwoClient implements CardGame, NetworkGame {
 		
 		if (message.getType() == CardGameMessage.READY) {
 			String messageContent = playerList.get(message.getPlayerID()).getName() + " is ready\n";
-			//System.out.println(messageContent);
 			bigTwoTable.repaint();
 			bigTwoTable.printMsg(messageContent);
 		}
@@ -531,10 +528,10 @@ public class BigTwoClient implements CardGame, NetworkGame {
 		}
 	}
 	
-	public void sendMessage(GameMessage message) {
+	public synchronized void sendMessage(GameMessage message) {
 		try {
 			oos.writeObject(message);
-			System.out.println("Message sent");
+			
 			//oos.close();
 		} catch (IOException ex) {
 			ex.printStackTrace();
@@ -550,7 +547,7 @@ public class BigTwoClient implements CardGame, NetworkGame {
 				ex.printStackTrace();
 			}
 		}
-		public void run() {	//check for disconnection from the server?
+		public synchronized void  run() {	
 			CardGameMessage message;
 			try {
 				while ((message = (CardGameMessage)ois.readObject()) != null) {

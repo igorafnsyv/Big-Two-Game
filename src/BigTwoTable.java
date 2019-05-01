@@ -19,6 +19,7 @@ public class BigTwoTable implements CardGameTable {
 	private JFrame frame;
 	private JPanel bigTwoPanel;
 	private JMenu menu = new JMenu("Game");
+	private JMenu messageMenu = new JMenu("Message");
 	private JButton playButton = new JButton("Play");
 	private JButton passButton = new JButton("Pass");
 	private JButton sendButton = new JButton("Send");
@@ -42,22 +43,9 @@ public class BigTwoTable implements CardGameTable {
 		
 		this.game = game;
 		selected = new boolean [52];
-		//avatars are added at the stage of component painting
-		//updateCardsInfo();	//sets images accordingly
-		//String frameName = "";
-		/*for (int i = 0; i < 4; i++) {
-			if (game.getPlayerList().get(i).getName() != "") {
-				frameName = game.getPlayerList().get(i).getName();
-				playerID = i;
-			}
-		}*/
+		// avatars are added at the stage of component painting
 		NetworkGame gameConnected = (NetworkGame)this.game;
-		String frameName = gameConnected.getPlayerName();
-		//playerID = gameConnected.getPlayerID();
-		//System.out.println(playerID + " id");
-		
-		
-		
+		String frameName = gameConnected.getPlayerName();	
 		frame = new JFrame(frameName);
 		msgArea = new JTextArea(21, 35); //rows, columns
 		
@@ -100,6 +88,10 @@ public class BigTwoTable implements CardGameTable {
 		menu.add(quitItem);
 		menuBar.add(menu);
 		
+		JMenuItem clearItem = new JMenuItem("Clear");
+		clearItem.addActionListener(new ClearMenuItemListener());
+		messageMenu.add(clearItem);
+		menuBar.add(messageMenu);
 		frame.add(menuBar, BorderLayout.NORTH);
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.add(playButton);//, BorderLayout.WEST);
@@ -235,6 +227,11 @@ public class BigTwoTable implements CardGameTable {
 	 */
 	public void clearMsgArea() {
 		msgArea.setText(null);
+		repaint();
+	}
+	
+	public void clearIncomingArea() {
+		incomingMsg.setText(null);
 		repaint();
 	}
 		
@@ -487,16 +484,6 @@ public class BigTwoTable implements CardGameTable {
 	class ConnectMenuItemListener implements ActionListener{
 
 		public void actionPerformed(ActionEvent e) {
-			/*
-			BigTwoDeck newDeck = new BigTwoDeck();
-			newDeck.initialize();
-			newDeck.shuffle();
-			game.getHandsOnTable().clear();
-			reset();
-			game.start(newDeck);	
-			updateCardsInfo();
-			frame.repaint();
-			*/
 			NetworkGame gameToConnect = (NetworkGame)game;
 			gameToConnect.makeConnection();
 		}
@@ -505,6 +492,12 @@ public class BigTwoTable implements CardGameTable {
 	class QuitMenuItemListener implements ActionListener{		
 		public void actionPerformed(ActionEvent e) {
 			System.exit(0);
+		}
+	}
+	
+	class ClearMenuItemListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			clearIncomingArea();
 		}
 	}
 	

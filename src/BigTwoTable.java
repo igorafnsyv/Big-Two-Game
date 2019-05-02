@@ -230,6 +230,10 @@ public class BigTwoTable implements CardGameTable {
 		repaint();
 	}
 	
+	/**
+	 * a method for clearing the incoming messages JTextArea
+	 * 
+	 */
 	public void clearIncomingArea() {
 		incomingMsg.setText(null);
 		repaint();
@@ -283,6 +287,11 @@ public class BigTwoTable implements CardGameTable {
 		resetSelected();
 	}
 	
+	/**
+	 * A method for printing the text message sent by user on the screen
+	 * @param msg
+	 * 				a message which will be printed
+	 */
 	public void printTextMsg(String msg) {
 		incomingMsg.append(msg + "\n");
 	}

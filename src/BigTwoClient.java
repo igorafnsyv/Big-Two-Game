@@ -27,9 +27,6 @@ public class BigTwoClient implements CardGame, NetworkGame {
 	private Socket sock;
 	private ObjectOutputStream oos;
 	private ObjectInputStream ois;
-	
-	
-	
 	private BigTwoTable bigTwoTable;
 	private boolean legalHand;
 	
@@ -192,7 +189,7 @@ public class BigTwoClient implements CardGame, NetworkGame {
 						}
 						else {
 							legalHand = true;
-							System.out.println("Hand is legit");
+							
 						}
 						
 					} 
@@ -218,7 +215,7 @@ public class BigTwoClient implements CardGame, NetworkGame {
 						
 						if (selectedHand.beats(handsOnTable.get(handsOnTable.size() - 1)) || canPlayAnyCard) {
 							legalHand = true;
-							System.out.println("Legit hand");
+							
 							break;
 						}
 						//selected Hand does not beat the top Hand on Table
@@ -395,41 +392,80 @@ public class BigTwoClient implements CardGame, NetworkGame {
 	}
 	
 	//NetworkGame interface methods
+	/**
+	 * 
+	 * a method for getting the playerID (i.e., index) of the local player.
+	 * @return playerID
+	 */
 	public int getPlayerID() {
 		return playerID;
 	}
 	
+	
+	/**
+	 * 
+	 * a method for setting the playerID (i.e., index) of the local player
+	 * 
+	 */
 	public void setPlayerID(int playerID) {
 		this.playerID = playerID;
 	}
 	
+	/**
+	 * a method for getting the IP address of the game server.
+	 * 
+	 */
 	public String getPlayerName() {
 		return playerName;
 	}
-	
+	/**
+	 * a method for setting the name of the local player.
+	 * 
+	 */
 	public void setPlayerName(String playerName) {
 		this.playerName = playerName;
 	}
+	
+	/**
+	 * a method for getting the TCP port of the game server
+	 */
 	
 	public String getServerIP() {
 		return serverIP;
 	}
 	
+	
+	/**
+	 * a method for setting the TCP port of the game server.
+	 */
 	public void setServerIP(String serverIP) {
 		this.serverIP = serverIP;
 	}
 	
+	
+	/**
+	 * a method for getting the TCP port of the game server.
+	 */
 	public int getServerPort() {
 		return serverPort;
 	}
 	
+	
+	/**
+	 * a method for setting the TCP port of the game server.
+	 * 
+	 */
 	public void setServerPort(int serverPort) {
 		this.serverPort = serverPort;
 		
 	}
 	
+	/**
+	 * 
+	 * a method for making a socket connection with the game server.
+	 * 
+	 */
 	public void makeConnection() {
-
 		serverIP = "";
 		while (serverIP.isEmpty()) {
 			//ask for input until input is provided
@@ -443,55 +479,52 @@ public class BigTwoClient implements CardGame, NetworkGame {
 		}
 		
 		try {
+			
 			sock = new Socket(this.getServerIP(), this.getServerPort());
 			oos = new ObjectOutputStream(sock.getOutputStream());
 			Thread readerThread = new Thread(new ServerHandler());	//implement it
 			readerThread.start();
 			sendMessage(new CardGameMessage(CardGameMessage.JOIN, -1, this.getPlayerName()));
-			System.out.println(this.getPlayerName());
 			sendMessage(new CardGameMessage(CardGameMessage.READY, -1, null));
 			
 		} catch (NoRouteToHostException ex) {
 			ex.printStackTrace();
-			System.out.println("No Server found");
+
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		
 	}
+	
+	/**
+	 * a method for parsing the messages received from the game server
+	 */
+	
 	public synchronized void parseMessage(GameMessage message) {
 		if (message.getType() == CardGameMessage.PLAYER_LIST) {
-			System.out.println("Received Player List");
 			this.playerID = message.getPlayerID();
 			String [] names = (String []) message.getData();
 			for (int i = 0; i < 4; i++) {
 				if (names[i] != null) {
 					playerList.get(i).setName(names[i]);
 				}
-			}
-			
+			}	
 		}
 		
 		if (message.getType() == CardGameMessage.JOIN) {
-			System.out.println("Received join");
 			String name = (String) message.getData();
 			playerList.get(message.getPlayerID()).setName(name);
-			System.out.println(playerList.get(message.getPlayerID()).getName());
 		}
 		
 		if (message.getType() == CardGameMessage.FULL) {
 			if (bigTwoTable != null)
 				bigTwoTable.printMsg("Server is full. You cannot join the game!");
-
 		}
 		
 		if (message.getType() == CardGameMessage.QUIT) {
-			//actually no need to show this message
 			bigTwoTable.printMsg("Player " + playerList.get(message.getPlayerID()).getName() + " has left the game\n" );
 			playerList.get(message.getPlayerID()).setName("");
 			
 			if (!endOfGame()) {
-				System.out.println("hello");
 				for (int i = 0; i < 4; i++) {
 					playerList.get(i).removeAllCards();
 				}
@@ -529,17 +562,22 @@ public class BigTwoClient implements CardGame, NetworkGame {
 		}
 	}
 	
+	
+	/**
+	 * 
+	 * a method for sending the specified message to the game server
+	 * 
+	 */
 	public synchronized void sendMessage(GameMessage message) {
 		try {
 			oos.writeObject(message);
-			
-			//oos.close();
+
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
 	}
 	
-	public class ServerHandler implements Runnable {
+	class ServerHandler implements Runnable {
 		
 		public ServerHandler() {
 			try {
@@ -552,7 +590,6 @@ public class BigTwoClient implements CardGame, NetworkGame {
 			CardGameMessage message;
 			try {
 				while ((message = (CardGameMessage)ois.readObject()) != null) {
-					//System.out.println(message.getPlayerID());
 					parseMessage(message);
 				}
 			} catch (SocketException es) {
@@ -562,7 +599,6 @@ public class BigTwoClient implements CardGame, NetworkGame {
 				ex.printStackTrace();
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
-				System.out.println("Message class is not found");
 				e.printStackTrace();
 			} 
 			
